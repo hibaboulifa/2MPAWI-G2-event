@@ -60,40 +60,28 @@ public class EventServicesImpl implements IEventServices{
         return eventRepository.save(event);
     }
 
-    @Override
-    public Logistics addAffectLog(Logistics logistics, String descriptionEvent) {
-      Event event = eventRepository.findByDescription(descriptionEvent);
-      if(event.getLogistics() == null){
-          Set<Logistics> logisticsSet = new HashSet<>();
-          logisticsSet.add(logistics);
-          event.setLogistics(logisticsSet);
-          eventRepository.save(event);
-      }
-      else{
-          event.getLogistics().add(logistics);
-      }
-        return logisticsRepository.save(logistics);
-    }
-
-    @Override
+ @Override
     public List<Logistics> getLogisticsDates(LocalDate date_debut, LocalDate date_fin) {
+        System.out.println(" Recherche des logistiques entre " + date_debut + " et " + date_fin);
+
         List<Event> events = eventRepository.findByDateDebutBetween(date_debut, date_fin);
-
         List<Logistics> logisticsList = new ArrayList<>();
-        for (Event event:events){
-            if(event.getLogistics().isEmpty()){
 
-                return null;
-            }
-
-            else {
+        for (Event event : events) {
+            if (event.getLogistics().isEmpty()) {
+                System.out.println(" Aucun matériel logistique pour l'événement : " + event.getDescription());
+            } else {
                 Set<Logistics> logisticsSet = event.getLogistics();
-                for (Logistics logistics:logisticsSet){
-                    if(logistics.isReserve())
+                for (Logistics logistics : logisticsSet) {
+                    if (logistics.isReserve()) {
                         logisticsList.add(logistics);
+                        System.out.println(" Logistique réservée : " + logistics.getDescription());
+                    }
                 }
             }
         }
+
+        System.out.println(" Nombre total de logistiques trouvées : " + logisticsList.size());
         return logisticsList;
     }
 
